@@ -1,0 +1,18 @@
+{
+  "name": "microservice-locations",
+  "version": "1.0.0",
+  "description": "Microservicio para manejar ubicaciones",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "apollo-server-express": "^3.11.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "graphql": "^16.6.0",
+    "mysql2": "^3.2.0"
+  }
+}
