@@ -1,6 +1,6 @@
 // microservice-provinces/schema.js
 const { gql } = require('apollo-server-express');
-const db = require('./dbConfig');
+const db = require('./database/dbConfig');
 
 // Definimos el esquema GraphQL
 const typeDefs = gql`

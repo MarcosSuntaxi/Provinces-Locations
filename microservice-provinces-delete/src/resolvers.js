@@ -1,4 +1,4 @@
-const db = require('./dbConfig'); // Configuración de la base de datos
+const db = require('./database/dbConfig'); // Configuración de la base de datos
 const amqp = require('amqplib'); // RabbitMQ
 
 const resolvers = {
