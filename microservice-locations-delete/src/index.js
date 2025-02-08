@@ -1,5 +1,5 @@
 const amqp = require('amqplib');
-const db = require('./dbConfig');
+const db = require('./database/dbConfig');
 require('dotenv').config();
 
 async function startListener() {

@@ -1,4 +1,5 @@
 const { gql } = require('apollo-server-express');
+const resolvers = require('./resolvers');
 
 const typeDefs = gql`
   type Location {
@@ -12,9 +13,13 @@ const typeDefs = gql`
     province_id: Int!
   }
 
+  type Query {
+    _empty: String
+  }
+
   type Mutation {
     createLocation(input: LocationInput!): Location
   }
 `;
 
-module.exports = typeDefs;
+module.exports = { typeDefs, resolvers };
