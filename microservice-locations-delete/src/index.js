@@ -17,7 +17,7 @@ async function startListener() {
         const { province_id } = JSON.parse(message.content.toString());
         console.log(`Evento recibido: Provincia eliminada con ID ${province_id}`);
 
-        // Eliminar ubicaciones asociadas a la provincia
+        // Delete ubicaciones asociadas a la provincia
         try {
           const [result] = await db.query('DELETE FROM locations WHERE province_id = ?', [province_id]);
           console.log(`Ubicaciones eliminadas: ${result.affectedRows}`);

@@ -21,11 +21,13 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({ app, path: '/graphql' });
 
+  
   const PORT = 4003;
   app.listen(PORT, () => {
     console.log(`🚀 Locations Create service running on http://localhost:${PORT}/graphql`);
   });
 }
+
 
 startServer().catch(error => {
   console.error('Error starting server:', error);

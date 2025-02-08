@@ -1,0 +1,97 @@
+name: Docker Compose CI/CD for Provinces Get Service
+
+on:
+  push:
+    paths:
+      - 'Provinces-Locations/microservice-provinces-get/**'
+    branches: ["testMS"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./Provinces-Locations/microservice-provinces-get
+      - name: Verify Installation
+        run: |
+          npm list
+          ls -la
+        working-directory: ./Provinces-Locations/microservice-provinces-get
+
+  dockerize-and-deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/provinces-get-service:latest ./Provinces-Locations/microservice-provinces-get
+      - name: Push Docker Image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/provinces-get-service:latest
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST_PROVINCES_GET }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY_M }}
+          port: 22
+          script: |
+            # Instalar Docker si no está instalado
+            if ! command -v docker &> /dev/null; then
+              echo "==> Installing Docker"
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -a -G docker $(whoami)
+            fi
+            # Instalar Docker Compose si no está instalado
+            if ! command -v docker-compose &> /dev/null; then
+              echo "==> Installing Docker Compose"
+              sudo curl -L "https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            # Crear archivo docker-compose.yml dinámicamente con las variables secretas
+            echo "Creating docker-compose.yml..."
+            cat > docker-compose.yml <<EOL
+            version: '3.8'
+            services:
+              provinces-get-service:
+                image: ${{ secrets.DOCKER_HUB_USERNAME }}/provinces-get-service:latest
+                container_name: provinces-get-service
+                environment:
+                  PORT: 4001
+                  DB_HOST: ${{ secrets.DB_HOST_L_P }}
+                  DB_USER: ${{ secrets.DB_USER }}
+                  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+                  DB_NAME_L_P: ${{ secrets.DB_NAME_L_P }}
+                  RABBITMQ_URL: ${{ secrets.RABBITMQ_URL }}
+                ports:
+                  - "4001:4001"
+                networks:
+                  - provinces-get-network
+            networks:
+              provinces-get-network:
+            EOL
+            # Detener y eliminar servicios anteriores
+            echo "Stopping existing containers..."
+            sudo docker-compose down || true
+            sudo docker rm -f provinces-get-service || true
+            # Iniciar servicios con docker-compose
+            echo "Starting services with Docker Compose..."
+            sudo docker-compose up -d
+            # Verificar si el contenedor está corriendo
+            echo "Verifying services..."
+            sudo docker-compose ps

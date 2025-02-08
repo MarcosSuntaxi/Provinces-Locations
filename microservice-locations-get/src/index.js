@@ -1,7 +1,7 @@
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { typeDefs, resolvers } = require('./schema');
-const cors = require('cors'); // Importar cors
+const cors = require('cors'); // Import cors
 
 async function startServer() {
   const app = express();

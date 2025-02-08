@@ -1,0 +1,97 @@
+name: Docker Compose CI/CD for Locations Create Service
+
+on:
+  push:
+    paths:
+      - 'Provinces-Locations/microservice-locations-create/**'
+    branches: ["testMS"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./Provinces-Locations/microservice-locations-create
+      - name: Verify Installation
+        run: |
+          npm list
+          ls -la
+        working-directory: ./Provinces-Locations/microservice-locations-create
+
+  dockerize-and-deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/locations-create-service:latest ./Provinces-Locations/microservice-locations-create
+      - name: Push Docker Image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/locations-create-service:latest
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST_LOCATIONS_CREATE }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY_M }}
+          port: 22
+          script: |
+            # Install Docker if not installed
+            if ! command -v docker &> /dev/null; then
+              echo "==> Installing Docker"
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -a -G docker $(whoami)
+            fi
+            # Install Docker Compose if not installed
+            if ! command -v docker-compose &> /dev/null; then
+              echo "==> Installing Docker Compose"
+              sudo curl -L "https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            # Create docker-compose.yml dynamically with secret variables
+            echo "Creating docker-compose.yml..."
+            cat > docker-compose.yml <<EOL
+            version: '3.8'
+            services:
+              locations-create-service:
+                image: ${{ secrets.DOCKER_HUB_USERNAME }}/locations-create-service:latest
+                container_name: locations-create-service
+                environment:
+                  PORT: 4003
+                  DB_HOST: ${{ secrets.DB_HOST_L_P }}
+                  DB_USER: ${{ secrets.DB_USER }}
+                  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+                  DB_NAME_L_P: ${{ secrets.DB_NAME_L_P }}
+                  DB_PORT: ${{ secrets.DB_PORT }}
+                ports:
+                  - "4003:4003"
+                networks:
+                  - locations-create-network
+            networks:
+              locations-create-network:
+            EOL
+            # Stop and remove previous services
+            echo "Stopping existing containers..."
+            sudo docker-compose down || true
+            sudo docker rm -f locations-create-service || true
+            # Start services with docker-compose
+            echo "Starting services with Docker Compose..."
+            sudo docker-compose up -d
+            # Verify if container is running
+            echo "Verifying services..."
+            sudo docker-compose ps
