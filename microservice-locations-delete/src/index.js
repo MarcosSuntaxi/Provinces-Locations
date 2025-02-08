@@ -8,6 +8,7 @@ async function startListener() {
     const channel = await connection.createChannel();
     const queue = 'province_deleted';
 
+    
     await channel.assertQueue(queue, { durable: true });
 
     console.log(`Esperando mensajes en la cola: ${queue}`);
