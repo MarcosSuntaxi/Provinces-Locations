@@ -1,4 +1,4 @@
-const db = require('./database/dbConfig');
+const pool = require('./database/dbConfig');
 
 const resolvers = {
   Query: {
@@ -7,15 +7,12 @@ const resolvers = {
   Mutation: {
     createLocation: async (_, { input }) => {
       try {
-        const [result] = await db.query(
-          'INSERT INTO locations (location_name, province_id) VALUES (?, ?)',
+        const result = await pool.query(
+          'INSERT INTO locations (location_name, province_id) VALUES ($1, $2) RETURNING location_id, location_name, province_id',
           [input.location_name, input.province_id]
         );
-        return {
-          location_id: result.insertId,
-          location_name: input.location_name,
-          province_id: input.province_id
-        };
+        
+        return result.rows[0];
       } catch (error) {
         console.error('Error creating location:', error);
         throw new Error('Failed to create location');
