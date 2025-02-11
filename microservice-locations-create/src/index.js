@@ -3,6 +3,7 @@ const { ApolloServer } = require('apollo-server-express');
 const { typeDefs, resolvers } = require('./schema');
 const cors = require('cors');
 
+
 async function startServer() {
   try {
     const app = express();
@@ -38,6 +39,7 @@ async function startServer() {
     process.exit(1);
   }
 }
+
 
 startServer().catch(error => {
   console.error('Error starting server:', error);

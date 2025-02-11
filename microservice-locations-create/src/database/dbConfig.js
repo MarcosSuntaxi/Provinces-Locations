@@ -22,4 +22,5 @@ db.getConnection()
     console.error('Error connecting to the database:', error);
   });
 
+  
 module.exports = db;
