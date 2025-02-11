@@ -1,13 +1,25 @@
-require('dotenv').config(); // Cargar variables de entorno desde .env
+require('dotenv').config();
 const mysql = require('mysql2/promise');
 
-// Configuración de la conexión a la base de datos
 const db = mysql.createPool({
-  host: process.env.DB_HOST_L_P,       // Host de la base de datos
-  user: process.env.DB_USER,           // Usuario de la base de datos
-  password: process.env.DB_PASSWORD,   // Contraseña de la base de datos
-  database: process.env.DB_NAME_L_P,   // Nombre de la base de datos
-  port: process.env.DB_PORT            // Puerto de la base de datos
+  host: process.env.DB_HOST_L_P,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME_L_P,
+  port: process.env.DB_PORT,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
+
+// Verificar conexión
+db.getConnection()
+  .then(connection => {
+    console.log('Database connected successfully');
+    connection.release();
+  })
+  .catch(error => {
+    console.error('Error connecting to the database:', error);
+  });
 
 module.exports = db;
