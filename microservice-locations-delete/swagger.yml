@@ -1,0 +1,28 @@
+openapi: 3.0.0
+info:
+  title: Microservice Locations Delete API
+  version: 1.0.0
+  description: API para eliminar ubicaciones asociadas a una provincia
+servers:
+  - url: http://localhost:4003
+paths:
+  /delete-location:
+    post:
+      summary: Eliminar ubicaciones por ID de provincia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                province_id:
+                  type: integer
+                  description: ID de la provincia
+      responses:
+        '200':
+          description: Ubicaciones eliminadas exitosamente
+        '400':
+          description: Error en la petición
+        '500':
+          description: Error del servidor
