@@ -1,0 +1,51 @@
+openapi: 3.0.0
+info:
+  title: Microservice Locations Create API
+  version: 1.0.0
+  description: API para crear ubicaciones
+servers:
+  - url: http://localhost:4003
+paths:
+  /graphql:
+    post:
+      summary: Crear una nueva ubicación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationInput'
+      responses:
+        '200':
+          description: Ubicación creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Error en la petición
+        '500':
+          description: Error del servidor
+components:
+  schemas:
+    LocationInput:
+      type: object
+      properties:
+        location_name:
+          type: string
+          description: Nombre de la ubicación
+        province_id:
+          type: integer
+          description: ID de la provincia
+    Location:
+      type: object
+      properties:
+        location_id:
+          type: integer
+          description: ID de la ubicación generada
+        location_name:
+          type: string
+          description: Nombre de la ubicación
+        province_id:
+          type: integer
+          description: ID de la provincia
