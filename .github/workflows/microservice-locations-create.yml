@@ -1,0 +1,87 @@
+name: Docker Compose CI/CD for Locations Create Service
+
+on:
+  push:
+    paths:
+      - 'Provinces-Locations/microservice-locations-create/**'
+    branches: ["testMS"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./Provinces-Locations/microservice-locations-create
+      - name: Verify Installation
+        run: |
+          npm list
+          ls -la
+        working-directory: ./Provinces-Locations/microservice-locations-create
+
+  dockerize-and-deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/locations-create-service:latest ./Provinces-Locations/microservice-locations-create
+      - name: Push Docker Image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/locations-create-service:latest
+      - name: Deploy to EC2 with Docker
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST_LOCATIONS_CREATE }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY_M }}
+          port: 22
+          script: |
+            # Instalar Docker si no está presente
+            if ! command -v docker &> /dev/null; then
+              echo "==> Instalando Docker"
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -a -G docker $(whoami)
+            fi
+
+            # Detener y eliminar contenedores previos correctamente
+            echo "Deteniendo y eliminando contenedores previos..."
+            sudo docker stop locations-create-service || true
+            sudo docker rm locations-create-service || true
+            sudo docker rmi -f ${{ secrets.DOCKER_HUB_USERNAME }}/locations-create-service:latest || true
+
+            # Descargar la última versión de la imagen
+            echo "Descargando la última imagen de Docker..."
+            sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/locations-create-service:latest
+
+            # Ejecutar contenedor con las variables secretas
+            echo "Desplegando el servicio con Docker..."
+            sudo docker run -d \
+              --name locations-create-service \
+              -p 4003:4003 \
+              -e PORT=4003 \
+              -e DB_HOST_L_P=${{ secrets.DB_HOST_L_P }} \
+              -e DB_USER=${{ secrets.DB_USER_L_P }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_NAME_L_P=${{ secrets.DB_NAME_L_P }} \
+              -e DB_PORT=${{ secrets.DB_PORT }} \
+              --restart always \
+              ${{ secrets.DOCKER_HUB_USERNAME }}/locations-create-service:latest
+
+            # Verificar si el contenedor está corriendo
+            echo "Verificando contenedor en ejecución..."
+            sudo docker ps | grep locations-create-service

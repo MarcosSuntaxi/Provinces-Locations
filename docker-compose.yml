@@ -8,12 +8,12 @@ services:
     networks:
       - provinces-locations-network
     environment:
-      - DB_HOST=${DB_HOST_L_P}
+      - DB_HOST_L_P=${DB_HOST_L_P}
       - DB_USER=${DB_USER_L_P}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME_L_P}
+      - DB_NAME_L_P=${DB_NAME_L_P}
       - DB_PORT=3306
-      - RABBITMQ_URL=${RABBITMQ_URL}
+      - RABBITMQ_URL=rabbitmq:5672  # Corregido
 
   microservice-locations-get:
     build: ./microservice-locations-get
@@ -22,24 +22,24 @@ services:
     networks:
       - provinces-locations-network
     environment:
-      - DB_HOST=${DB_HOST_L_P}
+      - DB_HOST_L_P=${DB_HOST_L_P}
       - DB_USER=${DB_USER_L_P}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME_L_P}
+      - DB_NAME_L_P=${DB_NAME_L_P}
       - DB_PORT=3306
-      - RABBITMQ_URL=${RABBITMQ_URL}
+      - RABBITMQ_URL=rabbitmq:5672  # Corregido
 
   microservice-locations-delete:
     build: ./microservice-locations-delete
     networks:
       - provinces-locations-network
     environment:
-      - DB_HOST=${DB_HOST_L_P}
+      - DB_HOST_L_P=${DB_HOST_L_P}
       - DB_USER=${DB_USER_L_P}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME_L_P}
+      - DB_NAME_L_P=${DB_NAME_L_P}
       - DB_PORT=3306
-      - RABBITMQ_URL=${RABBITMQ_URL}
+      - RABBITMQ_URL=rabbitmq:5672  # Corregido
 
   microservice-provinces-get:
     build: ./microservice-provinces-get
@@ -48,12 +48,12 @@ services:
     networks:
       - provinces-locations-network
     environment:
-      - DB_HOST=${DB_HOST_L_P}
+      - DB_HOST_L_P=${DB_HOST_L_P}
       - DB_USER=${DB_USER_L_P}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME_L_P}
+      - DB_NAME_L_P=${DB_NAME_L_P}
       - DB_PORT=3306
-      - RABBITMQ_URL=${RABBITMQ_URL}
+      - RABBITMQ_URL=rabbitmq:5672  # Corregido
 
   microservice-provinces-delete:
     build: ./microservice-provinces-delete
@@ -62,12 +62,12 @@ services:
     networks:
       - provinces-locations-network
     environment:
-      - DB_HOST=${DB_HOST_L_P}
+      - DB_HOST_L_P=${DB_HOST_L_P}
       - DB_USER=${DB_USER_L_P}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME_L_P}
+      - DB_NAME_L_P=${DB_NAME_L_P}
       - DB_PORT=3306
-      - RABBITMQ_URL=${RABBITMQ_URL}
+      - RABBITMQ_URL=rabbitmq:5672  # Corregido
 
   rabbitmq:
     image: rabbitmq:3-management

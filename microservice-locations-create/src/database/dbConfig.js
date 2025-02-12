@@ -12,6 +12,7 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
+
 // Verificar conexión
 db.getConnection()
   .then(connection => {
