@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  user-registration-service:
+    build: ./user-registration-service
+    ports:
+      - "3006:3006"
+    networks:
+      - user-network
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=3306
+      - JWT_SECRET=my_super_secret_key
+
+  get-user-service:
+    build: ./get-user-service
+    ports:
+      - "3001:3001"
+    networks:
+      - user-network
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=3306
+
+  delete-user-service:
+    build: ./delete-user-service
+    ports:
+      - "3002:3002"
+    networks:
+      - user-network
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=3306
+
+  update-user-service:
+    build: ./update-user-service
+    ports:
+      - "3003:3003"
+    networks:
+      - user-network
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=3306
+      - JWT_SECRET=my_super_secret_key
+
+  login-service:
+    build: ./login-service
+    ports:
+      - "3004:3004"
+    networks:
+      - user-network
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=3306
+      - JWT_SECRET=my_super_secret_key
+
+networks:
+  user-network:
+    driver: bridge

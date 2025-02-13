@@ -1,0 +1,120 @@
+openapi: 3.0.0
+info:
+  title: Microservice Locations API
+  version: 1.0.0
+  description: API for managing locations using GraphQL
+servers:
+  - url: http://localhost:8000
+paths:
+  /graphql:
+    post:
+      summary: Execute GraphQL queries
+      description: Perform GraphQL queries to retrieve location data based on filters.
+      parameters:
+        - in: header
+          name: Authorization
+          required: false
+          schema:
+            type: string
+          description: Bearer token for authentication (if required)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: GraphQL query string
+                  example: |
+                    query($filter: LocationFilter) { 
+                      getLocations(filter: $filter) { 
+                        location_id 
+                        location_name 
+                        province_id 
+                      } 
+                    }
+                variables:
+                  type: object
+                  description: Variables for the query
+                  example:
+                    filter:
+                      province_id: 1
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      getLocations:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Location'
+        '400':
+          description: Bad request, check input data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Invalid filter parameters"
+        '401':
+          description: Unauthorized, authentication required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Authentication required"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Database error occurred"
+components:
+  schemas:
+    Location:
+      type: object
+      properties:
+        location_id:
+          type: integer
+          description: Location ID
+          example: 101
+        location_name:
+          type: string
+          description: Name of the location
+          example: "Downtown"
+        province_id:
+          type: integer
+          description: Associated province ID
+          example: 1

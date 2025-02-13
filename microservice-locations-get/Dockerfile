@@ -2,7 +2,7 @@
 FROM node:20-alpine
 
 # Crear y establecer el directorio de trabajo
-WORKDIR /usr/src/app
+WORKDIR /usr/src/
 
 # Copiar package.json e instalar dependencias
 COPY package*.json ./

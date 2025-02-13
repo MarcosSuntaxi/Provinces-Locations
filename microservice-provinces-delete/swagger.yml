@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: Microservice Provinces Delete API
+  version: 1.0.0
+  description: API para eliminar provincias
+servers:
+  - url: http://localhost:8000
+paths:
+  /graphql:
+    post:
+      summary: Ejecutar mutaciones GraphQL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: Mutación GraphQL
+                  example: "mutation { deleteProvince(province_id: 5) }"
+      responses:
+        '200':
+          description: Respuesta exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      deleteProvince:
+                        type: string
+        '400':
+          description: Error en la petición
+        '500':
+          description: Error del servidor

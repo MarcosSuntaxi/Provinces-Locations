@@ -1,0 +1,103 @@
+openapi: 3.0.0
+info:
+  title: Microservice Provinces API
+  version: 1.0.0
+  description: API to manage provinces via GraphQL queries.
+servers:
+  - url: http://localhost:4001
+paths:
+  /graphql:
+    post:
+      summary: Execute GraphQL queries
+      description: Retrieves a list of provinces.
+      parameters:
+        - in: header
+          name: Authorization
+          required: false
+          schema:
+            type: string
+          description: Bearer token for authentication (if required).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: GraphQL query string.
+                  example: |
+                    query { 
+                      getProvinces { 
+                        province_id 
+                        province_name 
+                      } 
+                    }
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      getProvinces:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            province_id:
+                              type: integer
+                              example: 1
+                            province_name:
+                              type: string
+                              example: "Pichincha"
+        '400':
+          description: Bad request, check query format.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Invalid query format"
+        '401':
+          description: Unauthorized, authentication required.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Authentication required"
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Database connection error"

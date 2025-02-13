@@ -2,13 +2,21 @@ openapi: 3.0.0
 info:
   title: Microservice Locations Delete API
   version: 1.0.0
-  description: API para eliminar ubicaciones asociadas a una provincia
+  description: API for deleting locations associated with a province using GraphQL
 servers:
-  - url: http://localhost:4003
+  - url: http://localhost:4000
 paths:
   /delete-location:
     post:
-      summary: Eliminar ubicaciones por ID de provincia
+      summary: Delete locations by province ID
+      description: Deletes all locations associated with a given province ID using a GraphQL mutation.
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication
       requestBody:
         required: true
         content:
@@ -16,13 +24,69 @@ paths:
             schema:
               type: object
               properties:
-                province_id:
-                  type: integer
-                  description: ID de la provincia
+                query:
+                  type: string
+                  description: GraphQL mutation query
+                  example: |
+                    mutation {
+                      deleteProvince(province_id: 5)
+                    }
       responses:
         '200':
-          description: Ubicaciones eliminadas exitosamente
+          description: Locations successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      deleteProvince:
+                        type: boolean
+                        example: true
         '400':
-          description: Error en la petición
+          description: Bad request, check the provided data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Invalid province ID"
+        '401':
+          description: Unauthorized, authentication required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Authentication required"
         '500':
-          description: Error del servidor
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          example: "Database connection failed"

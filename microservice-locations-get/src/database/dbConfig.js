@@ -1,6 +1,7 @@
 require('dotenv').config(); // Cargar variables de entorno desde .env
 const mysql = require('mysql2/promise');
 
+
 // Configuración de la conexión a la base de datos
 const db = mysql.createPool({
   host: process.env.DB_HOST_L_P,       // Host de la base de datos
