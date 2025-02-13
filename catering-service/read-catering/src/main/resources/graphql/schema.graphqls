@@ -1,0 +1,11 @@
+type Catering {
+    id_catering: ID
+    name: String
+    price: Float
+}
+
+type Query {
+    getAllCatering: [Catering]
+    getCateringById(id_catering: ID!): Catering
+    searchCateringByName(name: String!): [Catering]
+}
